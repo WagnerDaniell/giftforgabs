@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Um Presente Para Você</title>
+    <!-- Incluindo o Tailwind CSS para estilização rápida -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Incluindo fontes do Google Fonts para um visual mais elegante -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Dancing+Script:wght@700&family=Lora:ital@1&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos personalizados para a caixa de presente e animações */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f3f4f6 0%, #E5E7EB 100%);
+            overflow: hidden; /* Evita barras de rolagem */
+        }
+
+        .gift-container {
+            width: 200px;
+            height: 180px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out;
+            z-index: 10;
+        }
+        
+        .gift-container:hover {
+            transform: scale(1.05) rotate(1deg);
+        }
+
+        .gift-lid {
+            width: 220px;
+            height: 50px;
+            background-color: #2D3748;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 8px;
+            z-index: 10;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .gift-box {
+            width: 200px;
+            height: 150px;
+            background-color: #2D3748;
+            position: absolute;
+            bottom: 0;
+            border-radius: 8px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .ribbon {
+            background-color: #38A169;
+            position: absolute;
+            z-index: 11;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .gift-box .ribbon-v, .gift-lid .ribbon-v {
+            width: 30px;
+            height: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .gift-lid .ribbon-h {
+            width: 100%;
+            height: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        #message {
+            font-family: 'Dancing Script', cursive;
+            transition: opacity 0.8s ease-in-out, transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform: scale(0.5);
+            opacity: 0;
+            position: relative;
+            z-index: 20;
+        }
+
+        #message.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        
+        #confetti-container {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 50;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px; height: 10px;
+            opacity: 0.9;
+            border-radius: 50%;
+            animation: fall 5s linear forwards;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        #slideshow-container {
+            position: fixed; inset: 0; z-index: 40;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+        }
+
+        #slideshow-container.visible { opacity: 1; }
+
+        #slideshow-container img {
+            position: absolute; top: 50%; left: 50%;
+            max-width: 80vw; max-height: 80vh;
+            object-fit: contain;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            transform: translate(-50%, -50%) scale(0.7);
+        }
+        
+        @keyframes moveAndRotate {
+            from { transform: translate(-52%, -48%) scale(1) rotate(5deg); }
+            to { transform: translate(-48%, -52%) scale(1.05) rotate(-5deg); }
+        }
+
+        #slideshow-container img.active {
+            opacity: 1;
+            animation: moveAndRotate 4s ease-in-out infinite alternate;
+        }
+        
+        .floating-emoji {
+            position: absolute; bottom: -50px;
+            font-size: 2.5rem;
+            animation: floatUp 8s linear forwards;
+            opacity: 0.8; z-index: 45;
+        }
+
+        @keyframes floatUp {
+            to { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .shake { animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both; }
+
+        /* NOVA CENA DE PAZ */
+        #peace-scene p {
+            font-family: 'Lora', serif;
+        }
+
+        @keyframes fly-gently {
+            0%, 100% { transform: translateY(-5px) rotate(-2deg); }
+            50% { transform: translateY(5px) rotate(2deg); }
+        }
+
+        #peace-scene span {
+            animation: fly-gently 5s ease-in-out infinite;
+        }
+
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4 text-center">
+    
+    <div id="confetti-container"></div>
+    <div id="slideshow-container"></div>
+    <div id="animation-container"></div>
+
+    <audio id="meuAudio" src="ManoGabs1.mp3" preload="auto"></audio>
+
+    <div id="main-content" class="space-y-8 transition-opacity duration-1000">
+        <div id="gift" class="gift-container mx-auto">
+            <div class="gift-lid"><div class="ribbon ribbon-v"></div><div class="ribbon ribbon-h"></div></div>
+            <div class="gift-box"><div class="ribbon ribbon-v"></div></div>
+        </div>
+    
+        <div>
+            <p id="instruction" class="text-lg text-gray-700 font-semibold transition-opacity duration-700">Clique no presente para abrir!</p>
+            
+            <div id="loading-container" class="opacity-0 h-0 transition-opacity duration-500 mt-4 space-y-2">
+                <p id="loading-text" class="text-lg text-gray-600">Analisando nível de amizade...</p>
+                <div class="w-64 bg-gray-300 rounded-full h-4 mx-auto overflow-hidden shadow-inner">
+                    <div id="progress-bar" class="bg-green-600 h-4 rounded-full" style="width: 0%; transition: width 2.5s ease-out;"></div>
+                </div>
+            </div>
+
+            <h1 id="message" class="text-5xl text-red-600 font-bold mt-4">Pegadinha do Mano Gabs! 😜</h1>
+        </div>
+    </div>
+
+    <!-- NOVA CENA DE PAZ -->
+    <div id="peace-scene" class="absolute inset-0 bg-white flex flex-col items-center justify-center opacity-0 transition-opacity duration-1000" style="z-index: 60; pointer-events: none;">
+        <span class="text-8xl mb-6">🕊️</span>
+        <p class="text-4xl text-gray-700">...nesse fundo, ele só quer paz.🤤</p>
+    </div>
+
+    <script>
+        const gift = document.getElementById('gift');
+        const audio = document.getElementById('meuAudio');
+        const instruction = document.getElementById('instruction');
+        const message = document.getElementById('message');
+        const confettiContainer = document.getElementById('confetti-container');
+        const loadingContainer = document.getElementById('loading-container');
+        const loadingText = document.getElementById('loading-text');
+        const progressBar = document.getElementById('progress-bar');
+        const slideshowContainer = document.getElementById('slideshow-container');
+        const animationContainer = document.getElementById('animation-container');
+        const mainContent = document.getElementById('main-content');
+        const body = document.body;
+        const peaceScene = document.getElementById('peace-scene');
+
+        // =================================================================
+        // ATENÇÃO: COLOQUE O CAMINHO DAS FOTOS LOCAIS AQUI
+        // As fotos devem estar na mesma pasta que este arquivo, ou em uma subpasta.
+        // Exemplo: 'minha-foto.png' ou 'imagens/foto_do_gabs.jpg'
+        const friendPhotos = [
+            'foto1.jpeg', // Substitua pelo nome do seu arquivo de imagem
+            'foto2.jpg', // Substitua pelo nome do seu arquivo de imagem
+            'foto3.jpg'  // Substitua pelo nome do seu arquivo de imagem
+        ];
+        // =================================================================
+
+        const confettiColors = ['#38A169', '#2D3748', '#fbbF24', '#ef4444', '#3b82f6'];
+        const emojis = ['😂', '🤡', '😜', '🤣', '👍', '🤪'];
+
+        const createConfetti = () => {
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.classList.add('confetti');
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = Math.random() * -100 + 'px';
+                confetti.style.backgroundColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+                const size = Math.random() * 10 + 5;
+                confetti.style.width = size + 'px';
+                confetti.style.height = size + 'px';
+                confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                confettiContainer.appendChild(confetti);
+                setTimeout(() => { confetti.remove(); }, 5000);
+            }
+        };
+        
+        const createFloatingEmoji = () => {
+            const emoji = document.createElement('div');
+            emoji.classList.add('floating-emoji');
+            emoji.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.style.left = Math.random() * 95 + 'vw';
+            animationContainer.appendChild(emoji);
+            setTimeout(() => { emoji.remove(); }, 8000);
+        };
+
+        const triggerScreenShake = () => {
+            body.classList.add('shake');
+            setTimeout(() => body.classList.remove('shake'), 820);
+        };
+
+        const runSlideshow = () => {
+            if (friendPhotos.length === 0) return;
+
+            slideshowContainer.classList.add('visible');
+            const photoDuration = 12000 / friendPhotos.length;
+            let photoElements = [];
+
+            friendPhotos.forEach(url => {
+                const img = document.createElement('img');
+                img.src = url;
+                slideshowContainer.appendChild(img);
+                photoElements.push(img);
+            });
+
+            let currentPhotoIndex = 0;
+            if(photoElements.length > 0) photoElements[currentPhotoIndex].classList.add('active');
+
+            const slideshowInterval = setInterval(() => {
+                if(photoElements[currentPhotoIndex]) photoElements[currentPhotoIndex].classList.remove('active');
+                currentPhotoIndex++;
+                if (currentPhotoIndex < photoElements.length) {
+                    photoElements[currentPhotoIndex].classList.add('active');
+                } else {
+                    clearInterval(slideshowInterval);
+                }
+            }, photoDuration);
+        };
+
+        const startMusicExperience = () => {
+            mainContent.style.display = 'none';
+            audio.play().catch(error => console.log("Erro ao tocar áudio:", error));
+
+            runSlideshow();
+            const emojiInterval = setInterval(createFloatingEmoji, 400);
+            const randomShakeTime = Math.random() * 6000 + 4000;
+            setTimeout(triggerScreenShake, randomShakeTime);
+
+            setTimeout(() => {
+                clearInterval(emojiInterval);
+                slideshowContainer.style.opacity = '0';
+                mainContent.style.display = 'block';
+                gift.style.display = 'none';
+                instruction.style.display = 'none';
+                loadingContainer.style.display = 'none';
+                message.classList.add('visible');
+                createConfetti();
+            }, 13000);
+
+            setTimeout(() => {
+                mainContent.style.opacity = '0';
+                confettiContainer.style.opacity = '0';
+            }, 23000);
+
+            setTimeout(() => {
+                peaceScene.style.opacity = '1';
+                peaceScene.style.pointerEvents = 'auto';
+            }, 24000);
+        };
+
+        const openGift = () => {
+            instruction.style.opacity = '0';
+            gift.style.pointerEvents = 'none';
+            loadingContainer.classList.remove('h-0');
+            loadingContainer.style.opacity = '1';
+
+            setTimeout(() => {
+                progressBar.style.width = '45%';
+                loadingText.innerText = 'Verificando se você merece...';
+            }, 100);
+            setTimeout(() => {
+                progressBar.style.width = '100%';
+                loadingText.innerText = 'Ok, você passou no teste!';
+            }, 1500);
+
+            setTimeout(() => {
+                loadingContainer.style.opacity = '0';
+                startMusicExperience();
+            }, 3000);
+        };
+
+        gift.addEventListener('click', openGift, { once: true });
+        gift.addEventListener('touchstart', openGift, { once: true });
+    </script>
+</body>
+</html>
+
